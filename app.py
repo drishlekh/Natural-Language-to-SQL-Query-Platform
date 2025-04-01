@@ -152,3 +152,56 @@ if __name__ == '__main__':
         app.run(debug=True)
     else:
         print("Please check your database configuration.")
+
+
+
+
+
+# def natural_to_sql(natural_query):
+ """
+#     Convert a natural language query to an SQL query using Groq's API.
+#     The query also identifies if dishes are vegetarian or non-vegetarian based on the names of the dishes.
+#     """
+#     """
+#     Convert a natural language query to an SQL query using Groq's API.
+#     The query also identifies if dishes are vegetarian or non-vegetarian based on the names of the dishes.
+#     """
+#     prompt = f"""
+#     Convert the following natural language query to a MySQL query.
+#     The query should be for a restaurants table with columns:
+#     id, name, special_dish, rating, location, cuisine, contact_number, opening_hours, created_at.
+
+#     Additionally, the 'special_dish' column includes the type of dish (vegetarian or non-vegetarian). 
+#     Identify if a dish is vegetarian or non-vegetarian based on the dish name or description.
+#     You need to categorize the dishes accordingly and return them as part of the SQL query.
+
+#     Natural language query: {natural_query}
+
+#     Return only the SQL query without any explanation or formatting.
+#     """
+
+#     try:
+#         response = groq_client.chat.completions.create(
+#             messages=[
+#                 {
+#                     "role": "user",
+#                     "content": prompt
+#                 }
+#             ],
+#             model="llama-3.1-8b-instant",  
+#             temperature=0.5,
+#         )
+        
+#         sql_query = response.choices[0].message.content.strip()
+
+#         if sql_query.startswith("```sql") and sql_query.endswith("```"):
+#             sql_query = sql_query[6:-3].strip()  
+
+#         sql_query = sql_query.replace('\_', '_')  
+#         sql_query = sql_query.replace('\*', '*') 
+#         sql_query = sql_query.replace('\\', '')  
+
+#         return sql_query
+#     except Exception as e:
+#         print(f"Error in natural_to_sql: {e}")
+#         raise Exception("Failed to convert natural language to SQL query")
