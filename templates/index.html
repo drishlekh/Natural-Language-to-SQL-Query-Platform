@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Natural Language Database Interaction with LLMs</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #1e40af;
+            --background-color: #f8fafc;
+            --card-background: #ffffff;
+            --text-color: #1e293b;
+            --border-radius: 12px;
+            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            color: var(--text-color);
+            text-align: center;
+        }
+
+        .query-card {
+            background: var(--card-background);
+            padding: 2rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+            transition: transform 0.2s ease;
+        }
+
+        .query-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .query-input {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            transition: border-color 0.2s ease;
+            margin-bottom: 1rem;
+            resize: vertical;
+            font-family: inherit;
+        }
+
+        .query-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .submit-btn {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            font-weight: 500;
+        }
+
+        .submit-btn:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .sql-query {
+            background-color: #1e293b;
+            color: #e2e8f0;
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            font-family: 'Monaco', 'Consolas', monospace;
+            margin-bottom: 2rem;
+            overflow-x: auto;
+        }
+
+        .error {
+            background-color: #fee2e2;
+            color: #dc2626;
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            margin-bottom: 2rem;
+            border-left: 4px solid #dc2626;
+        }
+
+        .results-table {
+            width: 100%;
+            background: var(--card-background);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        .results-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .results-table th {
+            background-color: #f1f5f9;
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .results-table td {
+            padding: 1rem;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .results-table tr:hover {
+            background-color: #f8fafc;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 2rem;
+            color: #64748b;
+            font-style: italic;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+
+            .query-card {
+                padding: 1rem;
+            }
+
+            .results-table {
+                overflow-x: auto;
+            }
+        }
+
+        /* Animation for new results */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .results-table {
+            animation: fadeIn 0.3s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Natural Language Database Interaction with LLMs</h1>
+        
+        <div class="query-card">
+            <form method="POST">
+                <textarea 
+                    name="natural_query" 
+                    class="query-input" 
+                    rows="3" 
+                    placeholder="Enter your query in natural language (e.g., 'show restaurants with rating above 4 stars')"
+                >{{ natural_query }}</textarea>
+                <button type="submit" class="submit-btn">Submit Query</button>
+            </form>
+        </div>
+
+        {% if sql_query %}
+        <div class="sql-query">
+            <strong>Generated SQL Query:</strong><br>
+            {{ sql_query }}
+        </div>
+        {% endif %}
+
+        {% if error %}
+        <div class="error">
+            {{ error }}
+        </div>
+        {% endif %}
+
+        {% if results %}
+            {% if results|length > 0 %}
+            <div class="results-table">
+                <table>
+                    <thead>
+                        <tr>
+                            {% for column in results[0].keys() %}
+                            <th>{{ column }}</th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in results %}
+                        <tr>
+                            {% for value in row.values() %}
+                            <td>{{ value }}</td>
+                            {% endfor %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="no-results">No results found for your query.</div>
+            {% endif %}
+        {% endif %}
+    </div>
+</body>
+</html>
